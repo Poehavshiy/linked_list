@@ -3,6 +3,27 @@
 //
 
 #include "Linked_list.h"
+Linked_list::Linked_list() {
+    head = nullptr;
+}
+
+Linked_list::Linked_list(const Person &person) {
+    head->person = new Person(person);
+}
+
+Linked_list::~Linked_list() {
+    if (head == nullptr) {
+        cout << " from ~Linked_list() list is empty " << endl;
+        return;
+    }
+    Node *iterator = head;
+    Node *priv = nullptr;
+    while (iterator != nullptr) {
+        priv = iterator;
+        iterator = iterator->next;
+        delete priv;
+    }
+}
 
 void Linked_list::write_xml( const char* path ) const{
 
@@ -43,33 +64,11 @@ void Linked_list::insert_node(Node *new_node, Node *prev, Node *next) {
 }
 
 Node *Linked_list::get_last() const {
-    Node *iterator;
+    Node *iterator = head;
     while (iterator->next != nullptr) {
         iterator = iterator->next;
     }
     return iterator;
-}
-
-Linked_list::Linked_list() {
-    head = nullptr;
-}
-
-Linked_list::Linked_list(const Person &person) {
-    head->person = new Person(person);
-}
-
-Linked_list::~Linked_list() {
-    if (head == nullptr) {
-        cout << " from ~Linked_list() list is empty " << endl;
-        return;
-    }
-    Node *iterator = head;
-    Node *priv = nullptr;
-    while (iterator != nullptr) {
-        priv = iterator;
-        iterator = iterator->next;
-        delete priv;
-    }
 }
 
 void Linked_list::show() const {
@@ -159,7 +158,12 @@ void Linked_list::insert_by_id(const Person &person, const int &index){
         cout << " from insert_by_id() list is empty and index != NULL" << endl;
         return;
     }
-    if(index == 0){
+    if(head == nullptr && index == 0){
+        Node *new_node = new Node(person);
+        head = new_node;
+        return;
+    }
+    if(head != nullptr && index == 0 ) {
         Node *new_node = new Node(person);
         insert_node(new_node, nullptr, head);
         return;
@@ -170,7 +174,7 @@ void Linked_list::insert_by_id(const Person &person, const int &index){
         iterator = iterator->next;
         ++counter;
     }
-    if (counter != index && iterator->next == nullptr) {
+    if (counter != index -1 && iterator->next == nullptr) {
         cout << " from delete_by_id() index is out of bound " << endl;
         return;
     }
@@ -179,8 +183,56 @@ void Linked_list::insert_by_id(const Person &person, const int &index){
 }
 
 void Linked_list::sort(){
-
+    head = mergeSort(head);
 }
+
+Node* Linked_list::split(Node* _head) {
+    Node* fast = _head;
+    Node* slow = _head;
+    while (fast->next && fast->next->next)
+    {
+        fast = fast->next->next;
+        slow = slow->next;
+    }
+    Node *temp = slow->next;
+    slow->next = nullptr;
+    return temp;
+}
+
+Node* Linked_list::merge(Node *first, Node *second) {
+    if (!first)
+        return second;
+
+    if (!second)
+        return first;
+
+    if (*(first->person) <= *(second->person))
+    {
+        first->next = merge(first->next,second);
+        first->next->prev = first;
+        first->prev = NULL;
+        return first;
+    }
+    else
+    {
+        second->next = merge(first,second->next);
+        second->next->prev = second;
+        second->prev = NULL;
+        return second;
+    }
+}
+
+Node* Linked_list:: mergeSort(Node* _head) {
+    if (!_head || !_head->next)
+        return _head;
+    Node* second = split(_head);
+
+    _head = mergeSort(_head);
+    second = mergeSort(second);
+
+    return merge(_head,second);
+}
+
 
 void Linked_list::write(const char *path, FTYPE type) const{
     if(type == TXT) write_txt(path);

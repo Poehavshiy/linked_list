@@ -21,6 +21,13 @@ class Linked_list {
     void insert_node(Node* new_node,Node* prev,Node* next);
 
     Node* get_last() const;
+
+    Node* split( Node* _head);
+
+    Node* merge(Node* first, Node* second);
+
+    Node* mergeSort(Node* _head);
+
 public:
     Linked_list();
 
@@ -45,5 +52,4 @@ public:
     void write(const char* path, FTYPE type) const;
 };
 
-
-#endif //TZTEST_LINKED_LIST_H
+#endif
